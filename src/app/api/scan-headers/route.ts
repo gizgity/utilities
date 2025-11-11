@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import * as xlsx from 'xlsx';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, SchemaType } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -16,9 +16,9 @@ async function getHeadersFromImage(file: File): Promise<string[]> {
     generationConfig: {
       responseMimeType: "application/json",
       responseSchema: {
-        type: SchemaType.ARRAY,
+        type: "array",
         items: {
-          type: SchemaType.STRING
+          type: "string"
         },
         description: "A list of all column headers found in the table image."
       }
