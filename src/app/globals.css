@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  --color-retro-green: #00ff00;
-  --color-retro-black: #0a0a0a;
+  --color-background: #ffffff;
+  --color-primary: #ffdb33;
+  --color-secondary: #000000;
 }
 
 @layer base {
   body {
-    @apply bg-retro-black text-retro-green font-mono;
+    @apply bg-background text-secondary font-mono;
   }
 }

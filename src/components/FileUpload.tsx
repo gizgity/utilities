@@ -26,8 +26,8 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
   return (
     <div
       {...getRootProps()}
-      className={`border-2 border-dashed border-retro-green p-12 text-center cursor-pointer ${
-        isDragActive ? 'bg-retro-green text-retro-black' : ''
+      className={`border-2 border-dashed border-primary p-12 text-center cursor-pointer ${
+        isDragActive ? 'bg-primary text-secondary' : ''
       }`}
     >
       <input {...getInputProps()} />
