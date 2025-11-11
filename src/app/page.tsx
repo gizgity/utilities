@@ -1,65 +1,223 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { FileUpload } from '../components/FileUpload';
+import { HeaderSelector } from '../components/HeaderSelector';
+import { DataPreview } from '../components/DataPreview';
+import { TemplateEditor } from '../components/TemplateEditor';
+import { Toast } from '../components/Toast';
 
 export default function Home() {
+  const [phase, setPhase] = useState(1);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [selectedHeaders, setSelectedHeaders] = useState<string[]>([]);
+  const [extractedData, setExtractedData] = useState<Record<string, any>[]>([]);
+  const [template, setTemplate] = useState('');
+  const [generatedOutput, setGeneratedOutput] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleFileUpload = async (file: File) => {
+    setUploadedFile(file);
+    setError(null);
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/scan-headers', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to scan headers.');
+      }
+
+      const data = await response.json();
+      setHeaders(data.headers);
+      setSelectedHeaders(data.headers); // Select all by default
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleHeaderToggle = (header: string) => {
+    setSelectedHeaders((prev) =>
+      prev.includes(header)
+        ? prev.filter((h) => h !== header)
+        : [...prev, header]
+    );
+  };
+
+  const proceedToPhase2 = () => {
+    if (selectedHeaders.length > 0) {
+      setPhase(2);
+    } else {
+      setError("Please select at least one header.");
+    }
+  };
+
+  const proceedToPhase3 = () => {
+    setPhase(3);
+  };
+
+  const handleGenerateOutput = () => {
+    let output = '';
+    for (const row of extractedData) {
+      let rowOutput = template;
+      for (const key in row) {
+        rowOutput = rowOutput.replace(new RegExp(`{${key}}`, 'g'), row[key]);
+      }
+      output += rowOutput + '\n';
+    }
+    setGeneratedOutput(output);
+  };
+
+  const downloadFile = (content: string, fileName: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadTxt = () => {
+    downloadFile(generatedOutput, 'output.txt', 'text/plain');
+  };
+
+  const downloadCsv = () => {
+    const csvHeader = selectedHeaders.join(',') + '\n';
+    const csvBody = extractedData.map(row =>
+      selectedHeaders.map(header => row[header]).join(',')
+    ).join('\n');
+    downloadFile(csvHeader + csvBody, 'output.csv', 'text/csv');
+  };
+
+  useEffect(() => {
+    if (phase === 2 && uploadedFile) {
+      const extractData = async () => {
+        setIsLoading(true);
+        setError(null);
+
+        const formData = new FormData();
+        formData.append('file', uploadedFile);
+        formData.append('selectedHeaders', JSON.stringify(selectedHeaders));
+
+        try {
+          const response = await fetch('/api/extract-data', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to extract data.');
+          }
+
+          const data = await response.json();
+          setExtractedData(data.data);
+        } catch (err: any) {
+          setError(err.message);
+          setPhase(1);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      extractData();
+    }
+  }, [phase, uploadedFile, selectedHeaders]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="border-2 border-retro-green p-8">
+      {error && <Toast message={error} onClose={() => setError(null)} />}
+      <h1 className="text-3xl font-bold mb-8 text-center">[ RETRO DATA EXTRACTOR ]</h1>
+
+      {phase === 1 && (
+        <div>
+          <h2 className="text-2xl mb-4">[ Phase 1: Upload & Select Headers ]</h2>
+          {!uploadedFile ? (
+            <FileUpload onFileUpload={handleFileUpload} />
+          ) : isLoading ? (
+            <p>Scanning headers...</p>
+          ) : (
+            <div>
+              <p className="mb-4">File Uploaded: {uploadedFile.name}</p>
+              <HeaderSelector
+                headers={headers}
+                selectedHeaders={selectedHeaders}
+                onHeaderToggle={handleHeaderToggle}
+              />
+              <button
+                onClick={proceedToPhase2}
+                disabled={selectedHeaders.length === 0}
+                className="mt-4 w-full bg-retro-green text-retro-black p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow disabled:bg-gray-500 disabled:shadow-none"
+              >
+                PROCEED TO DATA EXTRACTION
+              </button>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      )}
+
+      {phase === 2 && (
+        <div>
+          <h2 className="text-2xl mb-4">[ Phase 2: Extracted Data ]</h2>
+          {isLoading ? (
+            <p>Extracting data...</p>
+          ) : (
+            <div>
+              <DataPreview data={extractedData} />
+              <button
+                onClick={proceedToPhase3}
+                className="mt-4 w-full bg-retro-green text-retro-black p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow"
+              >
+                PROCEED TO TEMPLATE
+              </button>
+            </div>
+          )}
         </div>
-      </main>
+      )}
+
+      {phase === 3 && (
+        <div>
+          <h2 className="text-2xl mb-4">[ Phase 3: Generate Output ]</h2>
+          <TemplateEditor
+            availableKeys={selectedHeaders}
+            template={template}
+            onTemplateChange={setTemplate}
+            onGenerate={handleGenerateOutput}
+          />
+
+          {generatedOutput && (
+            <div className="mt-8">
+              <h3 className="text-xl mb-2">[ Generated Output ]</h3>
+              <textarea
+                readOnly
+                value={generatedOutput}
+                className="w-full h-64 bg-retro-black border-2 border-retro-green p-2 font-mono"
+              />
+              <div className="flex gap-4 mt-4">
+                <button onClick={downloadTxt} className="w-full bg-retro-green text-retro-black p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow">
+                  DOWNLOAD .TXT
+                </button>
+                <button onClick={downloadCsv} className="w-full bg-retro-green text-retro-black p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow">
+                  DOWNLOAD .CSV
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
