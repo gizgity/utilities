@@ -1,27 +1,27 @@
 import { NextResponse } from 'next/server';
 import * as xlsx from 'xlsx';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, type Schema, SchemaType } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-function generateSchema(headers: string[]): Record<string, any> {
+function generateSchema(headers: string[]): Schema {
   const properties: Record<string, any> = {};
   headers.forEach(header => {
     properties[header] = {
-      type: "string", // Defaulting to string, can be improved with heuristics
+      type: SchemaType.STRING,
       description: `The value for the column: ${header}`
     };
     // A simple heuristic for numeric values
     if (header.toLowerCase().includes('score') || header.toLowerCase().includes('điểm')) {
-      properties[header].type = "number";
+      properties[header].type = SchemaType.NUMBER;
     }
   });
 
   return {
-    type: "array",
+    type: SchemaType.ARRAY,
     description: "An array of data rows extracted from the table.",
     items: {
-      type: "object",
+      type: SchemaType.OBJECT,
       required: headers,
       properties: properties
     }
