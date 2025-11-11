@@ -138,7 +138,7 @@ export default function Home() {
   }, [phase, uploadedFile, selectedHeaders]);
 
   return (
-    <div className="border-2 border-retro-green p-8">
+    <div className="border-2 border-primary p-8">
       {error && <Toast message={error} onClose={() => setError(null)} />}
       <h1 className="text-3xl font-bold mb-8 text-center">[ RETRO DATA EXTRACTOR ]</h1>
 
@@ -160,7 +160,7 @@ export default function Home() {
               <button
                 onClick={proceedToPhase2}
                 disabled={selectedHeaders.length === 0}
-                className="mt-4 w-full bg-retro-green text-retro-black p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow disabled:bg-gray-500 disabled:shadow-none"
+                className="mt-4 w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow disabled:bg-gray-500 disabled:shadow-none"
               >
                 PROCEED TO DATA EXTRACTION
               </button>
@@ -179,7 +179,7 @@ export default function Home() {
               <DataPreview data={extractedData} />
               <button
                 onClick={proceedToPhase3}
-                className="mt-4 w-full bg-retro-green text-retro-black p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow"
+                className="mt-4 w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow"
               >
                 PROCEED TO TEMPLATE
               </button>
@@ -204,13 +204,13 @@ export default function Home() {
               <textarea
                 readOnly
                 value={generatedOutput}
-                className="w-full h-64 bg-retro-black border-2 border-retro-green p-2 font-mono"
+                className="w-full h-64 bg-background border-2 border-primary p-2 font-mono"
               />
               <div className="flex gap-4 mt-4">
-                <button onClick={downloadTxt} className="w-full bg-retro-green text-retro-black p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow">
+                <button onClick={downloadTxt} className="w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow">
                   DOWNLOAD .TXT
                 </button>
-                <button onClick={downloadCsv} className="w-full bg-retro-green text-retro-black p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow">
+                <button onClick={downloadCsv} className="w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow">
                   DOWNLOAD .CSV
                 </button>
               </div>

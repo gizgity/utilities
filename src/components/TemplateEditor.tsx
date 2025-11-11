@@ -45,7 +45,7 @@ export function TemplateEditor({
             onChange={(e) => onTemplateChange(e.target.value)}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
-            className="w-full h-48 bg-retro-black border-2 border-retro-green p-2 font-mono"
+            className="w-full h-48 bg-background border-2 border-primary p-2 font-mono"
             placeholder="e.g., Dear {Họ và tên}, your score is {Toán}."
           />
         </div>
@@ -57,7 +57,7 @@ export function TemplateEditor({
                 key={key}
                 draggable
                 onDragStart={(e) => handleDragStart(e, key)}
-                className="cursor-grab border-2 border-retro-green p-2 text-center"
+                className="cursor-grab border-2 border-primary p-2 text-center"
               >
                 {`{${key}}`}
               </div>
@@ -67,7 +67,7 @@ export function TemplateEditor({
       </div>
       <button
         onClick={onGenerate}
-        className="mt-8 w-full bg-retro-green text-retro-black p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow"
+        className="mt-8 w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow"
       >
         GENERATE OUTPUT
       </button>

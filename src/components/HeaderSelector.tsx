@@ -8,7 +8,7 @@ interface HeaderSelectorProps {
 
 export function HeaderSelector({ headers, selectedHeaders, onHeaderToggle }: HeaderSelectorProps) {
   return (
-    <div className="border-2 border-retro-green p-4 mt-4">
+    <div className="border-2 border-primary p-4 mt-4">
       <h3 className="text-xl mb-4">[ Select Headers ]</h3>
       <div className="grid grid-cols-3 gap-4">
         {headers.map((header) => (
