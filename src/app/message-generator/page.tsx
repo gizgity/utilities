@@ -15,19 +15,53 @@ import {
 } from '@/components/ui/Toast';
 import { Button } from '@/components/ui/Button';
 
+interface Phase1State {
+  uploadedFile: File | null;
+  headers: string[];
+  selectedHeaders: string[];
+  hasChanged: boolean;
+}
+
+interface Phase2State {
+  extractedData: Record<string, any>[];
+  hasChanged: boolean;
+}
+
+interface Phase3State {
+  template: string;
+  generatedOutput: string;
+  hasChanged: boolean;
+}
+
 export default function Home() {
   const [phase, setPhase] = useState(1);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [headers, setHeaders] = useState<string[]>([]);
-  const [selectedHeaders, setSelectedHeaders] = useState<string[]>([]);
-  const [extractedData, setExtractedData] = useState<Record<string, any>[]>([]);
-  const [template, setTemplate] = useState('');
-  const [generatedOutput, setGeneratedOutput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [phase1State, setPhase1State] = useState<Phase1State>({
+    uploadedFile: null,
+    headers: [],
+    selectedHeaders: [],
+    hasChanged: true,
+  });
+
+  const [phase2State, setPhase2State] = useState<Phase2State>({
+    extractedData: [],
+    hasChanged: true,
+  });
+
+  const [phase3State, setPhase3State] = useState<Phase3State>({
+    template: '',
+    generatedOutput: '',
+    hasChanged: true,
+  });
+
   const handleFileUpload = async (file: File) => {
-    setUploadedFile(file);
+    setPhase1State({
+      ...phase1State,
+      uploadedFile: file,
+      hasChanged: true,
+    });
     setError(null);
     setIsLoading(true);
 
@@ -46,8 +80,13 @@ export default function Home() {
       }
 
       const data = await response.json();
-      setHeaders(data.headers);
-      setSelectedHeaders(data.headers); // Select all by default
+      setPhase1State(prevState => ({
+        ...prevState,
+        headers: data.headers,
+        selectedHeaders: data.headers,
+      }));
+      setPhase2State({ extractedData: [], hasChanged: true });
+      setPhase3State({ template: '', generatedOutput: '', hasChanged: true });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -56,23 +95,28 @@ export default function Home() {
   };
 
   const handleHeaderToggle = (header: string) => {
-    setSelectedHeaders((prev) =>
-      prev.includes(header)
-        ? prev.filter((h) => h !== header)
-        : [...prev, header]
-    );
+    const { selectedHeaders } = phase1State;
+    const newSelectedHeaders = selectedHeaders.includes(header)
+      ? selectedHeaders.filter((h) => h !== header)
+      : [...selectedHeaders, header];
+
+    setPhase1State({
+      ...phase1State,
+      selectedHeaders: newSelectedHeaders,
+      hasChanged: true,
+    });
   };
 
   const handleGenerateOutput = () => {
     let output = '';
-    for (const row of extractedData) {
-      let rowOutput = template;
+    for (const row of phase2State.extractedData) {
+      let rowOutput = phase3State.template;
       for (const key in row) {
         rowOutput = rowOutput.replace(new RegExp(`{${key}}`, 'g'), row[key]);
       }
       output += rowOutput + '\n';
     }
-    setGeneratedOutput(output);
+    setPhase3State({ ...phase3State, generatedOutput: output, hasChanged: false });
   };
 
   const downloadFile = (content: string, fileName: string, mimeType: string) => {
@@ -88,13 +132,13 @@ export default function Home() {
   };
 
   const downloadTxt = () => {
-    downloadFile(generatedOutput, 'output.txt', 'text/plain');
+    downloadFile(phase3State.generatedOutput, 'output.txt', 'text/plain');
   };
 
   const downloadCsv = () => {
-    const csvHeader = selectedHeaders.join(',') + '\n';
-    const csvBody = extractedData.map(row =>
-      selectedHeaders.map(header => row[header]).join(',')
+    const csvHeader = phase1State.selectedHeaders.join(',') + '\n';
+    const csvBody = phase2State.extractedData.map(row =>
+      phase1State.selectedHeaders.map(header => row[header]).join(',')
     ).join('\n');
     downloadFile(csvHeader + csvBody, 'output.csv', 'text/csv');
   };
@@ -108,24 +152,24 @@ export default function Home() {
   };
 
   const canGoNext = () => {
-    if (phase === 1 && selectedHeaders.length === 0) {
+    if (phase === 1 && phase1State.selectedHeaders.length === 0) {
       return false;
     }
-    if (phase === 2 && extractedData.length === 0) {
+    if (phase === 2 && phase2State.extractedData.length === 0) {
       return false;
     }
     return true;
   };
 
   useEffect(() => {
-    if (phase === 2 && uploadedFile) {
+    if (phase === 2 && phase1State.uploadedFile && phase1State.hasChanged) {
       const extractData = async () => {
         setIsLoading(true);
         setError(null);
 
         const formData = new FormData();
-        formData.append('file', uploadedFile);
-        formData.append('selectedHeaders', JSON.stringify(selectedHeaders));
+        formData.append('file', phase1State.uploadedFile);
+        formData.append('selectedHeaders', JSON.stringify(phase1State.selectedHeaders));
 
         try {
           const response = await fetch('/api/extract-data', {
@@ -139,7 +183,8 @@ export default function Home() {
           }
 
           const data = await response.json();
-          setExtractedData(data.data);
+          setPhase2State({ extractedData: data.data, hasChanged: false });
+          setPhase1State(prev => ({ ...prev, hasChanged: false }));
         } catch (err: any) {
           setError(err.message);
           setPhase(1);
@@ -149,13 +194,13 @@ export default function Home() {
       };
       extractData();
     }
-  }, [phase, uploadedFile, selectedHeaders]);
+  }, [phase, phase1State.uploadedFile, phase1State.selectedHeaders, phase1State.hasChanged]);
 
   useEffect(() => {
-    if (generatedOutput) {
-      setGeneratedOutput('');
+    if (phase2State.hasChanged) {
+      setPhase3State(prev => ({ ...prev, generatedOutput: '', hasChanged: true }));
     }
-  }, [extractedData]);
+  }, [phase2State]);
 
   return (
     <ToastProvider>
@@ -182,16 +227,21 @@ export default function Home() {
         {phase === 1 && (
           <div>
             <h2 className="text-2xl mb-4">[ Phase 1: Upload & Select Headers ]</h2>
-            {!uploadedFile ? (
-              <FileUpload onFileUpload={handleFileUpload} />
-            ) : isLoading ? (
+            {isLoading ? (
               <p>Scanning headers...</p>
+            ) : !phase1State.uploadedFile ? (
+              <FileUpload onFileUpload={handleFileUpload} />
             ) : (
               <div>
-                <p className="mb-4">File Uploaded: {uploadedFile.name}</p>
+                <div className="flex justify-between items-center mb-4">
+                  <p>File Uploaded: {phase1State.uploadedFile.name}</p>
+                  <Button onClick={() => setPhase1State({ ...phase1State, uploadedFile: null, headers: [], selectedHeaders: [] })}>
+                    UPLOAD NEW FILE
+                  </Button>
+                </div>
                 <HeaderSelector
-                  headers={headers}
-                  selectedHeaders={selectedHeaders}
+                  headers={phase1State.headers}
+                  selectedHeaders={phase1State.selectedHeaders}
                   onHeaderToggle={handleHeaderToggle}
                 />
               </div>
@@ -207,9 +257,9 @@ export default function Home() {
             ) : (
               <div>
                 <EditableTable
-                  headers={selectedHeaders}
-                  data={extractedData}
-                  onDataChange={setExtractedData}
+                  headers={phase1State.selectedHeaders}
+                  data={phase2State.extractedData}
+                  onDataChange={(newData) => setPhase2State({ extractedData: newData, hasChanged: true })}
                 />
               </div>
             )}
@@ -220,18 +270,18 @@ export default function Home() {
           <div>
             <h2 className="text-2xl mb-4">[ Phase 3: Generate Output ]</h2>
             <TemplateEditor
-              availableKeys={selectedHeaders}
-              template={template}
-              onTemplateChange={setTemplate}
+              availableKeys={phase1State.selectedHeaders}
+              template={phase3State.template}
+              onTemplateChange={(newTemplate) => setPhase3State(prev => ({ ...prev, template: newTemplate, hasChanged: true }))}
               onGenerate={handleGenerateOutput}
             />
 
-            {generatedOutput && (
+            {phase3State.generatedOutput && (
               <div className="mt-8">
                 <h3 className="text-xl mb-2">[ Generated Output ]</h3>
                 <textarea
                   readOnly
-                  value={generatedOutput}
+                  value={phase3State.generatedOutput}
                   className="w-full h-64 bg-background border border-input p-2"
                 />
                 <div className="flex gap-4 mt-4">
