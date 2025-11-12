@@ -71,7 +71,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unsupported file type.' }, { status: 400 });
     }
 
-    return NextResponse.json({ headers });
+    const uniqueHeaders = [...new Set(headers)];
+
+    return NextResponse.json({ headers: uniqueHeaders });
   } catch (error: any) {
     console.error(error);
     return NextResponse.json({ error: 'An unexpected error occurred.' }, { status: 500 });
