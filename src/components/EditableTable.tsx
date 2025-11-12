@@ -36,7 +36,7 @@ export function EditableTable({ headers, data, onDataChange }: EditableTableProp
 
   return (
     <div>
-      <table className="w-full table-fixed">
+      <table className="w-full table-auto">
         <thead>
           <tr>
             {headers.map((header) => (
