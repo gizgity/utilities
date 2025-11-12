@@ -1,6 +1,8 @@
 'use client';
 
-import React from 'react';
+import * as React from 'react';
+import { Button } from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface TemplateEditorProps {
   availableKeys: string[];
@@ -40,12 +42,12 @@ export function TemplateEditor({
         <div className="w-2/3">
           <h3 className="text-xl mb-2">[ Template Editor ]</h3>
           <p className="text-sm mb-4">Drag and drop keys from the list on the right into the text area.</p>
-          <textarea
+          <Textarea
             value={template}
             onChange={(e) => onTemplateChange(e.target.value)}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
-            className="w-full h-48 bg-background border-2 border-primary p-2 font-mono"
+            className="h-48"
             placeholder="e.g., Dear {Họ và tên}, your score is {Toán}."
           />
         </div>
@@ -57,7 +59,7 @@ export function TemplateEditor({
                 key={key}
                 draggable
                 onDragStart={(e) => handleDragStart(e, key)}
-                className="cursor-grab border-2 border-primary p-2 text-center"
+                className="cursor-grab border border-input p-2 text-center"
               >
                 {`{${key}}`}
               </div>
@@ -65,12 +67,12 @@ export function TemplateEditor({
           </div>
         </div>
       </div>
-      <button
+      <Button
         onClick={onGenerate}
-        className="mt-8 w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow"
+        className="mt-8 w-full"
       >
         GENERATE OUTPUT
-      </button>
+      </Button>
     </div>
   );
 }

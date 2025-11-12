@@ -2,12 +2,14 @@
 
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { cn } from '@/lib/utils';
 
 interface FileUploadProps {
   onFileUpload: (file: File) => void;
+  className?: string;
 }
 
-export function FileUpload({ onFileUpload }: FileUploadProps) {
+export function FileUpload({ onFileUpload, className }: FileUploadProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       onFileUpload(acceptedFiles[0]);
@@ -26,9 +28,11 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
   return (
     <div
       {...getRootProps()}
-      className={`border-2 border-dashed border-primary p-12 text-center cursor-pointer ${
-        isDragActive ? 'bg-primary text-secondary' : ''
-      }`}
+      className={cn(
+        'border-2 border-dashed border-input bg-background p-12 text-center cursor-pointer',
+        isDragActive && 'border-primary',
+        className
+      )}
     >
       <input {...getInputProps()} />
       {isDragActive ? (

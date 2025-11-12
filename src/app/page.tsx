@@ -5,7 +5,15 @@ import { FileUpload } from '../components/FileUpload';
 import { HeaderSelector } from '../components/HeaderSelector';
 import { DataPreview } from '../components/DataPreview';
 import { TemplateEditor } from '../components/TemplateEditor';
-import { Toast } from '../components/Toast';
+import {
+  ToastProvider,
+  ToastViewport,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+  ToastClose,
+} from '../components/ui/Toast';
+import { Button } from '../components/ui/Button';
 
 export default function Home() {
   const [phase, setPhase] = useState(1);
@@ -138,86 +146,97 @@ export default function Home() {
   }, [phase, uploadedFile, selectedHeaders]);
 
   return (
-    <div className="border-2 border-primary p-8">
-      {error && <Toast message={error} onClose={() => setError(null)} />}
-      <h1 className="text-3xl font-bold mb-8 text-center">[ RETRO DATA EXTRACTOR ]</h1>
-
-      {phase === 1 && (
-        <div>
-          <h2 className="text-2xl mb-4">[ Phase 1: Upload & Select Headers ]</h2>
-          {!uploadedFile ? (
-            <FileUpload onFileUpload={handleFileUpload} />
-          ) : isLoading ? (
-            <p>Scanning headers...</p>
-          ) : (
-            <div>
-              <p className="mb-4">File Uploaded: {uploadedFile.name}</p>
-              <HeaderSelector
-                headers={headers}
-                selectedHeaders={selectedHeaders}
-                onHeaderToggle={handleHeaderToggle}
-              />
-              <button
-                onClick={proceedToPhase2}
-                disabled={selectedHeaders.length === 0}
-                className="mt-4 w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow disabled:bg-gray-500 disabled:shadow-none"
-              >
-                PROCEED TO DATA EXTRACTION
-              </button>
+    <ToastProvider>
+      <div className="container mx-auto p-8">
+        {error && (
+          <Toast>
+            <div className="grid gap-1">
+              <ToastTitle>Error</ToastTitle>
+              <ToastDescription>{error}</ToastDescription>
             </div>
-          )}
-        </div>
-      )}
+            <ToastClose onClick={() => setError(null)} />
+          </Toast>
+        )}
+        <h1 className="text-3xl font-bold mb-8 text-center">[ RETRO DATA EXTRACTOR ]</h1>
 
-      {phase === 2 && (
-        <div>
-          <h2 className="text-2xl mb-4">[ Phase 2: Extracted Data ]</h2>
-          {isLoading ? (
-            <p>Extracting data...</p>
-          ) : (
-            <div>
-              <DataPreview data={extractedData} />
-              <button
-                onClick={proceedToPhase3}
-                className="mt-4 w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow"
-              >
-                PROCEED TO TEMPLATE
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {phase === 3 && (
-        <div>
-          <h2 className="text-2xl mb-4">[ Phase 3: Generate Output ]</h2>
-          <TemplateEditor
-            availableKeys={selectedHeaders}
-            template={template}
-            onTemplateChange={setTemplate}
-            onGenerate={handleGenerateOutput}
-          />
-
-          {generatedOutput && (
-            <div className="mt-8">
-              <h3 className="text-xl mb-2">[ Generated Output ]</h3>
-              <textarea
-                readOnly
-                value={generatedOutput}
-                className="w-full h-64 bg-background border-2 border-primary p-2 font-mono"
-              />
-              <div className="flex gap-4 mt-4">
-                <button onClick={downloadTxt} className="w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow">
-                  DOWNLOAD .TXT
-                </button>
-                <button onClick={downloadCsv} className="w-full bg-primary text-secondary p-4 font-bold shadow-retro-3d hover:shadow-retro-3d-hover transition-shadow">
-                  DOWNLOAD .CSV
-                </button>
+        {phase === 1 && (
+          <div>
+            <h2 className="text-2xl mb-4">[ Phase 1: Upload & Select Headers ]</h2>
+            {!uploadedFile ? (
+              <FileUpload onFileUpload={handleFileUpload} />
+            ) : isLoading ? (
+              <p>Scanning headers...</p>
+            ) : (
+              <div>
+                <p className="mb-4">File Uploaded: {uploadedFile.name}</p>
+                <HeaderSelector
+                  headers={headers}
+                  selectedHeaders={selectedHeaders}
+                  onHeaderToggle={handleHeaderToggle}
+                />
+                <Button
+                  onClick={proceedToPhase2}
+                  disabled={selectedHeaders.length === 0}
+                  className="mt-4 w-full"
+                >
+                  PROCEED TO DATA EXTRACTION
+                </Button>
               </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+            )}
+          </div>
+        )}
+
+        {phase === 2 && (
+          <div>
+            <h2 className="text-2xl mb-4">[ Phase 2: Extracted Data ]</h2>
+            {isLoading ? (
+              <p>Extracting data...</p>
+            ) : (
+              <div>
+                <DataPreview data={extractedData} />
+                <Button
+                  onClick={proceedToPhase3}
+                  className="mt-4 w-full"
+                >
+                  PROCEED TO TEMPLATE
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {phase === 3 && (
+          <div>
+            <h2 className="text-2xl mb-4">[ Phase 3: Generate Output ]</h2>
+            <TemplateEditor
+              availableKeys={selectedHeaders}
+              template={template}
+              onTemplateChange={setTemplate}
+              onGenerate={handleGenerateOutput}
+            />
+
+            {generatedOutput && (
+              <div className="mt-8">
+                <h3 className="text-xl mb-2">[ Generated Output ]</h3>
+                <textarea
+                  readOnly
+                  value={generatedOutput}
+                  className="w-full h-64 bg-background border border-input p-2"
+                />
+                <div className="flex gap-4 mt-4">
+                  <Button onClick={downloadTxt} className="w-full">
+                    DOWNLOAD .TXT
+                  </Button>
+                  <Button onClick={downloadCsv} className="w-full">
+                    DOWNLOAD .CSV
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <ToastViewport />
+    </ToastProvider>
   );
 }
