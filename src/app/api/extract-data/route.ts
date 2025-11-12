@@ -33,7 +33,7 @@ async function getDataFromImage(file: File, selectedHeaders: string[]): Promise<
   const schema = generateSchema(selectedHeaders);
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-2.5-flash",
     safetySettings: [
       {
         category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -46,7 +46,7 @@ async function getDataFromImage(file: File, selectedHeaders: string[]): Promise<
     }
   });
 
-  const prompt = "You are an accurate and selective data extraction engine. Parse all data rows from the attached table image. **You must only return data for the keys specified in the schema.**";
+  const prompt = "As a highly accurate and selective data extraction and parsing engine, your task is to perform a comprehensive OCR scan of the attached table image and extract all complete data rows. You must ensure Full Cell Integrity by capturing the entire content of every data cell from beginning to end, including any characters at the extreme edges. **Crucially, when encountering data for a single logical field (e.g., a full name, address component, or combined description) that is fragmented or split across two or more adjacent columns (whether labeled or unlabeled), you must logically combine the content of these adjacent cells into a single, complete string for the corresponding field.** Most critically, you must adhere to Strict Schema Enforcement, meaning you will only return the data that precisely corresponds to the keys defined in the provided schema, excluding all extraneous text, headers, and fields not requested. The final output must be delivered as a structured list of objects (e.g., JSON or similar array structure) that strictly follows the schema's field names and data requirements.";
 
   const imageBuffer = Buffer.from(await file.arrayBuffer());
   const imageBase64 = imageBuffer.toString('base64');
