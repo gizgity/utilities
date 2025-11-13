@@ -45,6 +45,19 @@ export default function TTSPage() {
       <h1 className="text-3xl font-bold mb-8 text-center">[ Text-to-Speech ]</h1>
       <div className="space-y-6 max-w-xl mx-auto">
         <div className="space-y-2">
+          <label htmlFor="style-prompt-input" className="font-bold">
+            Style Instructions
+          </label>
+          <Textarea
+            id="style-prompt-input"
+            value={stylePrompt}
+            onChange={(e) => setStylePrompt(e.target.value)}
+            placeholder="e.g., Read aloud in a warm, welcoming tone"
+            className="w-full h-14"
+          />
+        </div>
+
+        <div className="space-y-2">
           <label htmlFor="text-input" className="font-bold">
             Text Input
           </label>
@@ -75,19 +88,6 @@ export default function TTSPage() {
             <option value="Puck">Puck</option>
             <option value="Zephyr">Zephyr</option>
           </select>
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="style-prompt-input" className="font-bold">
-            Style Instructions
-          </label>
-          <Input
-            id="style-prompt-input"
-            value={stylePrompt}
-            onChange={(e) => setStylePrompt(e.target.value)}
-            placeholder="e.g., Read aloud in a warm, welcoming tone"
-            className="w-full"
-          />
         </div>
 
         <Button
