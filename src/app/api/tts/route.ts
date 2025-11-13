@@ -18,22 +18,27 @@ export async function POST(req: NextRequest) {
     });
 
     const result = await model.generateContent({
-      contents: [{ parts: [{ text }] }],
-      generationConfig: {
-        responseModalities: ['AUDIO'],
-        speechConfig: {
-          prompt: stylePrompt,
-          voiceConfig: {
-            prebuiltVoiceConfig: {
-              voiceName: voice,
-            },
+      contents: [{ role: 'user', parts: [{ text }] }],
+      speechConfig: {
+        prompt: stylePrompt,
+        voiceConfig: {
+          prebuiltVoiceConfig: {
+            voiceName: voice,
           },
         },
       },
-    });
+    } as any);
 
-    const audioPart = result.response.parts.find(part => part.audio);
-    if (!audioPart || !audioPart.audio) {
+    const candidate = result.response.candidates?.[0];
+    if (!candidate) {
+      return NextResponse.json(
+        { error: 'No candidates found in the response.' },
+        { status: 500 }
+      );
+    }
+
+    const audioPart = candidate.content.parts.find(part => (part as any).audio);
+    if (!audioPart || !(audioPart as any).audio) {
       return NextResponse.json(
         { error: 'Failed to generate audio from API.' },
         { status: 500 }
@@ -41,7 +46,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Convert the base64 audio to a buffer
-    const audioBuffer = Buffer.from(audioPart.audio as string, 'base64');
+    const audioBuffer = Buffer.from((audioPart as any).audio as string, 'base64');
 
     return new NextResponse(audioBuffer, {
       status: 200,
