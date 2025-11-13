@@ -1,45 +1,50 @@
 import { NextResponse } from 'next/server';
 import * as xlsx from 'xlsx';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, SchemaType } from '@google/generative-ai';
+import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from '@google/genai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 async function getHeadersFromImage(file: File): Promise<string[]> {
-  const model = genAI.getGenerativeModel({
+  const prompt = "You are a data extraction tool. Identify all column headers from the attached image of a table. Return *only* the headers.";
+
+  const imageBuffer = Buffer.from(await file.arrayBuffer());
+  const imageBase64 = imageBuffer.toString('base64');
+
+  const result = await genAI.models.generateContent({
     model: "gemini-2.5-flash",
-    safetySettings: [
+    contents: [
       {
-        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-      },
+        role: 'user',
+        parts: [
+          { text: prompt },
+          {
+            inlineData: {
+              data: imageBase64,
+              mimeType: file.type,
+            },
+          }
+        ]
+      }
     ],
-    generationConfig: {
+    config: {
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+      ],
       responseMimeType: "application/json",
       responseSchema: {
-        type: SchemaType.ARRAY,
+        type: 'array',
         items: {
-          type: SchemaType.STRING
+          type: 'string'
         },
         description: "A list of all column headers found in the table image."
       }
     }
   });
 
-  const prompt = "You are a data extraction tool. Identify all column headers from the attached image of a table. Return *only* the headers.";
-
-  const imageBuffer = Buffer.from(await file.arrayBuffer());
-  const imageBase64 = imageBuffer.toString('base64');
-
-  const imagePart = {
-    inlineData: {
-      data: imageBase64,
-      mimeType: file.type,
-    },
-  };
-
-  const result = await model.generateContent([prompt, imagePart]);
-  const response = await result.response;
-  const responseObject = JSON.parse(await response.text());
+  const responseObject = JSON.parse(result.text);
   return responseObject;
 }
 
