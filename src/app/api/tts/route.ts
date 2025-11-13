@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { text, voice } = await req.json();
+    const { text, voice, stylePrompt } = await req.json();
 
-    if (!text || !voice) {
+    if (!text || !voice || !stylePrompt) {
       return NextResponse.json(
-        { error: 'Missing text or voice in request body' },
+        { error: 'Missing text, voice, or stylePrompt in request body' },
         { status: 400 }
       );
     }
@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       generationConfig: {
         responseModalities: ['AUDIO'],
         speechConfig: {
+          prompt: stylePrompt,
           voiceConfig: {
             prebuiltVoiceConfig: {
               voiceName: voice,
