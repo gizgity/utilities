@@ -1,8 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Input, Button, Table } from '@/components/ui';
 
 interface EditableTableProps {
   headers: string[];
@@ -36,35 +35,35 @@ export function EditableTable({ headers, data, onDataChange }: EditableTableProp
 
   return (
     <div>
-      <table className="w-full table-auto">
-        <thead>
-          <tr>
+      <Table className="max-w-lg mb-6 mx-auto">
+        <Table.Header>
+          <Table.Row>
             {headers.map((header) => (
-              <th key={header} className="p-2 border border-input text-left">{header}</th>
+              <Table.Head key={header} className="p-2 border border-input text-left">{header}</Table.Head>
             ))}
-            <th className="p-2 border border-input text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+            <Table.Head className="p-2 border border-input text-left">Actions</Table.Head>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
           {data.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <Table.Row key={rowIndex}>
               {headers.map((header) => (
-                <td key={header} className="p-2 border border-input">
+                <Table.Cell key={header} className="p-2 border border-input">
                   <Input
                     value={row[header]}
                     onChange={(e) => handleInputChange(e, rowIndex, header)}
                   />
-                </td>
+                </Table.Cell>
               ))}
-              <td className="p-2 border border-input">
+              <Table.Cell className="p-2 border border-input">
                 <Button onClick={() => handleDeleteRow(rowIndex)} variant="destructive">
                   Delete
                 </Button>
-              </td>
-            </tr>
+              </Table.Cell>
+            </Table.Row>
           ))}
-        </tbody>
-      </table>
+        </Table.Body>
+      </Table>
       <Button onClick={handleAddRow} className="mt-4">
         Add Row
       </Button>

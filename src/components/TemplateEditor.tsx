@@ -1,8 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button } from '@/components/ui/Button';
-import { Textarea } from '@/components/ui/Textarea';
+import { Text, Textarea, Card, Button } from '@/components/ui';
 
 interface TemplateEditorProps {
   availableKeys: string[];
@@ -55,14 +54,16 @@ export function TemplateEditor({
           <h3 className="text-xl mb-2">[ Available Keys ]</h3>
           <div className="flex flex-col gap-2">
             {availableKeys.map((key) => (
-              <div
-                key={key}
+              <Card key={key}
                 draggable
                 onDragStart={(e) => handleDragStart(e, key)}
-                className="cursor-grab border border-input p-2 text-center"
-              >
-                {`{${key}}`}
-              </div>
+                className="cursor-grab border border-input p-2 text-center">
+                <Card.Content>
+                  <Text className="text-lg">
+                    {`{${key}}`}
+                  </Text>
+                </Card.Content>
+              </Card>
             ))}
           </div>
         </div>

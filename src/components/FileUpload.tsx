@@ -29,7 +29,7 @@ export function FileUpload({ onFileUpload, className }: FileUploadProps) {
     <div
       {...getRootProps()}
       className={cn(
-        'border-2 border-dashed border-input bg-background p-12 text-center cursor-pointer',
+        'border-2 border-dashed bg-background p-12 text-center cursor-pointer',
         isDragActive && 'border-primary',
         className
       )}

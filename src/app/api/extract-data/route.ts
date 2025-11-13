@@ -12,8 +12,11 @@ function generateSchema(headers: string[]): Schema {
       description: `The value for the column: ${header}`
     };
     // A simple heuristic for numeric values
-    if (header.toLowerCase().includes('score') || header.toLowerCase().includes('điểm')) {
+    if (['anh', 'văn', 'toán', 'stt', 'sbd'].includes(header.toLowerCase())) {
       properties[header].type = SchemaType.NUMBER;
+    }
+    if (['họ và tên', 'họ tên', 'họ, tên'].includes(header.toLowerCase())) {
+      properties[header].description = `The value for the column: ${header} (this field could be fragmented or split across two or more adjacent columns (unlabeled columns next to the first labeled one), you must logically combine the content of these adjacent cells into a single, complete string.)`;
     }
   });
 

@@ -14,7 +14,7 @@ export default function Sidebar({ setIsOpen, navConfig }: SideNavProps) {
   const pathname = usePathname();
 
   return (
-    <div className="sidebar-scroll border-r-2 h-full overflow-y-auto transition-transform transform md:translate-x-0 w-full bg-background flex flex-col justify-start md:justify-start py-8">
+    <div className="sidebar-scroll sticky top-0 ps-3 border-r-2 max-h-screen h-full overflow-y-auto transition-transform transform md:translate-x-0 w-full bg-background flex flex-col justify-start md:justify-start py-8">
       <nav
         className="flex flex-col items-start max-lg:px-6 space-y-4"
         aria-label="Main navigation"
@@ -34,7 +34,9 @@ export default function Sidebar({ setIsOpen, navConfig }: SideNavProps) {
                     "bg-primary text-primary-foreground"
                   }`}
                 >
-                  {child.title}
+                  <Text className="pe-2">
+                    {child.title}
+                  </Text>
                   {child.tag && (
                     <Badge
                       size="sm"

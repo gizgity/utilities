@@ -5,8 +5,7 @@ import { FileUpload } from '../../components/FileUpload';
 import { HeaderSelector } from '../../components/HeaderSelector';
 import { EditableTable } from '../../components/EditableTable';
 import { TemplateEditor } from '../../components/TemplateEditor';
-import { Alert } from '@/components/ui/Alert';
-import { Button } from '@/components/ui/Button';
+import { Textarea, Button, Alert } from '@/components/ui';
 
 interface Phase1State {
   uploadedFile: File | null;
@@ -28,6 +27,7 @@ interface Phase3State {
 
 export default function Home() {
   const [phase, setPhase] = useState(1);
+  const [isMounted, setIsMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -190,10 +190,17 @@ export default function Home() {
   }, [phase, phase1State.uploadedFile, phase1State.selectedHeaders, phase1State.hasChanged]);
 
   useEffect(() => {
+    // prevent hydration mismatches by rendering interactive UI only after mount
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (phase2State.hasChanged) {
       setPhase3State(prev => ({ ...prev, generatedOutput: '', hasChanged: true }));
     }
   }, [phase2State]);
+
+  if (!isMounted) return null;
 
   return (
     <div className="container mx-auto p-8">
@@ -203,7 +210,7 @@ export default function Home() {
           <Alert.Description>{error}</Alert.Description>
         </Alert>
       )}
-        <h1 className="text-3xl font-bold mb-8 text-center">[ RETRO DATA EXTRACTOR ]</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center">[ DATA EXTRACTOR ]</h1>
         <div className="flex justify-between items-center mb-4">
           <Button onClick={handlePreviousPhase} disabled={phase === 1}>
             PREVIOUS
@@ -268,7 +275,7 @@ export default function Home() {
             {phase3State.generatedOutput && (
               <div className="mt-8">
                 <h3 className="text-xl mb-2">[ Generated Output ]</h3>
-                <textarea
+                <Textarea
                   readOnly
                   value={phase3State.generatedOutput}
                   className="w-full h-64 bg-background border border-input p-2"
