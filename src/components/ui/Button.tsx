@@ -15,6 +15,8 @@ const buttonVariants = cva(
         outline:
           "shadow-md hover:shadow active:shadow-none bg-transparent border-2 transition hover:translate-y-1 active:translate-y-2 active:translate-x-1",
         link: "bg-transparent hover:underline",
+        destructive:
+          "shadow-md hover:shadow active:shadow-none bg-destructive text-destructive-foreground border-2 border-black transition hover:translate-y-1 active:translate-y-2 active:translate-x-1",
       },
       size: {
         sm: "px-3 py-1 text-sm shadow hover:shadow-none",
@@ -44,15 +46,25 @@ export const Button = React.forwardRef<HTMLButtonElement, IButtonProps>(
       className = "",
       variant = "default",
       asChild = false,
+      disabled,
       ...props
     }: IButtonProps,
     forwardedRef,
   ) => {
     const Comp = asChild ? Slot : "button";
+    // If the button is disabled, force the visual variant to 'secondary'
+    // so it appears visually disabled regardless of the provided variant.
+    const appliedVariant = disabled ? "secondary" : variant;
+
     return (
       <Comp
         ref={forwardedRef}
-        className={cn(buttonVariants({ variant, size }), className)}
+        className={cn(
+          buttonVariants({ variant: appliedVariant, size }),
+          className,
+          disabled && "pointer-events-none",
+        )}
+        disabled={disabled}
         {...props}
       >
         {children}
