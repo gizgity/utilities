@@ -33,10 +33,18 @@ export function generateNavConfig(): NavConfig {
     })
     .map((dirent) => dirent.name);
 
-  const navItems: NavItem[] = directories.map((page) => ({
-    title: page.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
-    href: `/${page}`,
-  }));
+  const navItems: NavItem[] = directories.map((page) => {
+    if (page === "tts") {
+      return {
+        title: "Text-to-Speech",
+        href: "/tts",
+      };
+    }
+    return {
+      title: page.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+      href: `/${page}`,
+    };
+  });
 
   return {
     sideNavItems: [
