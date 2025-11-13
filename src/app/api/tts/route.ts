@@ -17,17 +17,33 @@ export async function POST(req: NextRequest) {
       model: 'gemini-2.5-flash-preview-tts',
     });
 
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text }] }],
-      speechConfig: {
-        prompt: stylePrompt,
-        voiceConfig: {
-          prebuiltVoiceConfig: {
-            voiceName: voice,
-          },
+    const generationConfig = {
+      temperature: 1,
+    };
+
+    const speechConfig = {
+      prompt: stylePrompt,
+      voiceConfig: {
+        prebuiltVoiceConfig: {
+          voiceName: voice,
         },
       },
-    } as any);
+    };
+
+    const contents = [
+      {
+        role: 'user',
+        parts: [{ text }],
+      },
+    ];
+
+    const requestPayload = {
+      contents,
+      generationConfig,
+      speechConfig,
+    };
+
+    const result = await model.generateContent(requestPayload as any);
 
     const candidate = result.response.candidates?.[0];
     if (!candidate) {
