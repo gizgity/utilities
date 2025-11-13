@@ -1,13 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Textarea, Button, Alert } from '@/components/ui';
-// Assuming a Select component exists in the UI library
-// If not, a native select will be used with appropriate styling.
-// import { Select } from '@/components/ui';
+import { Textarea, Button, Alert, Input } from '@/components/ui';
 
 export default function TTSPage() {
   const [text, setText] = useState('');
+  const [stylePrompt, setStylePrompt] = useState('Read aloud in a warm, welcoming tone');
   const [voice, setVoice] = useState('Kore');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +22,7 @@ export default function TTSPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text, voice }),
+        body: JSON.stringify({ text, voice, stylePrompt }),
       });
 
       if (!response.ok) {
@@ -67,11 +65,6 @@ export default function TTSPage() {
           <label htmlFor="voice-select" className="font-bold">
             Voice Selection
           </label>
-          {/*
-            This is a placeholder for a styled select component.
-            If a Select component is available in retroui.dev, it will be used.
-            Otherwise, a native select will be styled to match the theme.
-          */}
           <select
             id="voice-select"
             value={voice}
@@ -82,6 +75,19 @@ export default function TTSPage() {
             <option value="Puck">Puck</option>
             <option value="Zephyr">Zephyr</option>
           </select>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="style-prompt-input" className="font-bold">
+            Style Instructions
+          </label>
+          <Input
+            id="style-prompt-input"
+            value={stylePrompt}
+            onChange={(e) => setStylePrompt(e.target.value)}
+            placeholder="e.g., Read aloud in a warm, welcoming tone"
+            className="w-full"
+          />
         </div>
 
         <Button
