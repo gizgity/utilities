@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -12,40 +12,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({
+    const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+
+    const result = await genAI.models.generateContent({
       model: 'gemini-2.5-flash-preview-tts',
-    });
-
-    const generationConfig = {
-      temperature: 1,
-    };
-
-    const speechConfig = {
-      prompt: stylePrompt,
-      voiceConfig: {
-        prebuiltVoiceConfig: {
-          voiceName: voice,
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text }],
+        },
+      ],
+      config: {
+        temperature: 1,
+        responseModalities: [
+          'audio',
+        ],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: {
+              voiceName: voice,
+            },
+          },
         },
       },
-    };
+    });
 
-    const contents = [
-      {
-        role: 'user',
-        parts: [{ text }],
-      },
-    ];
-
-    const requestPayload = {
-      contents,
-      generationConfig,
-      speechConfig,
-    };
-
-    const result = await model.generateContent(requestPayload as any);
-
-    const candidate = result.response.candidates?.[0];
+    const candidate = result.candidates?.[0];
     if (!candidate) {
       return NextResponse.json(
         { error: 'No candidates found in the response.' },

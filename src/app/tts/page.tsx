@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Textarea, Button, Alert, Input } from '@/components/ui';
+import { Textarea, Button, Alert, Select, Input } from '@/components/ui';
 
 export default function TTSPage() {
   const [text, setText] = useState('');
@@ -10,6 +10,7 @@ export default function TTSPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const voicesList = ['Kore', 'Puck', 'Zephyr', 'Fenrir', 'Achird'];
 
   const handleGenerate = async () => {
     setIsLoading(true);
@@ -75,19 +76,23 @@ export default function TTSPage() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="voice-select" className="font-bold">
-            Voice Selection
-          </label>
-          <select
-            id="voice-select"
+          <Select
             value={voice}
-            onChange={(e) => setVoice(e.target.value)}
-            className="w-full p-2 border border-border bg-background"
+            onValueChange={setVoice}
           >
-            <option value="Kore">Kore</option>
-            <option value="Puck">Puck</option>
-            <option value="Zephyr">Zephyr</option>
-          </select>
+            <Select.Trigger>
+              <Select.Value placeholder="Voice Selection" />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Group>
+                {voicesList.map((v) => (
+                  <Select.Item key={v} value={v}>
+                    {v}
+                  </Select.Item>
+                ))}
+              </Select.Group>
+            </Select.Content>
+          </Select>
         </div>
 
         <Button
