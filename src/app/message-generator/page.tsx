@@ -5,14 +5,7 @@ import { FileUpload } from '../../components/FileUpload';
 import { HeaderSelector } from '../../components/HeaderSelector';
 import { EditableTable } from '../../components/EditableTable';
 import { TemplateEditor } from '../../components/TemplateEditor';
-import {
-  ToastProvider,
-  ToastViewport,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastClose,
-} from '@/components/ui/Toast';
+import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 
 interface Phase1State {
@@ -203,17 +196,13 @@ export default function Home() {
   }, [phase2State]);
 
   return (
-    <ToastProvider>
-      <div className="container mx-auto p-8">
-        {error && (
-          <Toast>
-            <div className="grid gap-1">
-              <ToastTitle>Error</ToastTitle>
-              <ToastDescription>{error}</ToastDescription>
-            </div>
-            <ToastClose onClick={() => setError(null)} />
-          </Toast>
-        )}
+    <div className="container mx-auto p-8">
+      {error && (
+        <Alert variant="solid" status="error">
+          <Alert.Title>Error</Alert.Title>
+          <Alert.Description>{error}</Alert.Description>
+        </Alert>
+      )}
         <h1 className="text-3xl font-bold mb-8 text-center">[ RETRO DATA EXTRACTOR ]</h1>
         <div className="flex justify-between items-center mb-4">
           <Button onClick={handlePreviousPhase} disabled={phase === 1}>
@@ -297,7 +286,5 @@ export default function Home() {
           </div>
         )}
       </div>
-      <ToastViewport />
-    </ToastProvider>
   );
 }
