@@ -1,34 +1,7 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, Schema, SchemaType } from '@google/generative-ai';
+import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from '@google/genai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
-const model = genAI.getGenerativeModel({
-  model: 'gemini-1.5-flash',
-});
-
-const schema: Schema = {
-  type: SchemaType.OBJECT,
-  properties: {
-    headers: {
-      type: SchemaType.ARRAY,
-      items: {
-        type: SchemaType.STRING,
-      },
-      description: 'A list of all column headers found in the table image.',
-    },
-    data: {
-      type: SchemaType.ARRAY,
-      description: 'An array of data rows extracted from the table.',
-      items: {
-        type: SchemaType.OBJECT,
-        properties: {
-        },
-      },
-    },
-  },
-  required: ['headers', 'data'],
-};
+const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(request: Request) {
   try {
@@ -46,7 +19,8 @@ export async function POST(request: Request) {
     const imageBuffer = Buffer.from(await file.arrayBuffer());
     const imageBase64 = imageBuffer.toString('base64');
 
-    const result = await model.generateContent({
+    const result = await genAI.models.generateContent({
+      model: 'gemini-1.5-flash',
       contents: [
         {
           role: 'user',
@@ -63,20 +37,40 @@ export async function POST(request: Request) {
           ],
         },
       ],
-      generationConfig: {
+      config: {
         responseMimeType: 'application/json',
-        responseSchema: schema,
-      },
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        responseSchema: {
+          type: 'object',
+          properties: {
+            headers: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              description: 'A list of all column headers found in the table image.',
+            },
+            data: {
+              type: 'array',
+              description: 'An array of data rows extracted from the table.',
+              items: {
+                type: 'object',
+                properties: {
+                },
+              },
+            },
+          },
+          required: ['headers', 'data'],
         },
-      ],
+        safetySettings: [
+          {
+            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+          },
+        ],
+      }
     });
 
-    const response = result.response;
-    const responseObject = JSON.parse(response.text());
+    const responseObject = JSON.parse(result.text);
 
     return NextResponse.json(responseObject);
   } catch (error: any) {
