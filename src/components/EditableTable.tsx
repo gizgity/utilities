@@ -5,11 +5,12 @@ import { Input, Button, Table } from '@/components/ui';
 
 interface EditableTableProps {
   headers: string[];
+  allHeaders: string[];
   data: Record<string, any>[];
   onDataChange: (data: Record<string, any>[]) => void;
 }
 
-export function EditableTable({ headers, data, onDataChange }: EditableTableProps) {
+export function EditableTable({ headers, allHeaders, data, onDataChange }: EditableTableProps) {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     rowIndex: number,
@@ -21,7 +22,7 @@ export function EditableTable({ headers, data, onDataChange }: EditableTableProp
   };
 
   const handleAddRow = () => {
-    const newRow = headers.reduce((acc, header) => {
+    const newRow = allHeaders.reduce((acc, header) => {
       acc[header] = '';
       return acc;
     }, {} as Record<string, any>);
