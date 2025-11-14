@@ -254,6 +254,7 @@ export default function Home() {
               <div>
                 <EditableTable
                   headers={phase1State.selectedHeaders}
+                  allHeaders={phase1State.headers}
                   data={phase2State.extractedData}
                   onDataChange={(newData) => setPhase2State({ extractedData: newData, hasChanged: true })}
                 />
