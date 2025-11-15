@@ -62,14 +62,14 @@ export default function Home() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/scan-headers', {
+      const response = await fetch('/api/process-file', {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to scan headers.');
+        throw new Error(errorData.error || 'Failed to process file.');
       }
 
       const data = await response.json();
@@ -78,7 +78,7 @@ export default function Home() {
         headers: data.headers,
         selectedHeaders: data.headers,
       }));
-      setPhase2State({ extractedData: [], hasChanged: true });
+      setPhase2State({ extractedData: data.data, hasChanged: false });
       setPhase3State({ template: '', generatedOutput: '', hasChanged: true });
     } catch (err: any) {
       setError(err.message);
@@ -154,40 +154,6 @@ export default function Home() {
     return true;
   };
 
-  useEffect(() => {
-    if (phase === 2 && phase1State.uploadedFile && phase1State.hasChanged) {
-      const extractData = async () => {
-        setIsLoading(true);
-        setError(null);
-
-        const formData = new FormData();
-        formData.append('file', phase1State.uploadedFile);
-        formData.append('selectedHeaders', JSON.stringify(phase1State.selectedHeaders));
-
-        try {
-          const response = await fetch('/api/extract-data', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to extract data.');
-          }
-
-          const data = await response.json();
-          setPhase2State({ extractedData: data.data, hasChanged: false });
-          setPhase1State(prev => ({ ...prev, hasChanged: false }));
-        } catch (err: any) {
-          setError(err.message);
-          setPhase(1);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      extractData();
-    }
-  }, [phase, phase1State.uploadedFile, phase1State.selectedHeaders, phase1State.hasChanged]);
 
   useEffect(() => {
     // prevent hydration mismatches by rendering interactive UI only after mount
