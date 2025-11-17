@@ -24,6 +24,10 @@ export async function POST(request: Request) {
 
     const metadata = await ytdlp.getInfoAsync(url);
 
+    if (metadata._type === 'playlist') {
+      return NextResponse.json({ error: 'Playlists are not supported. Please provide a URL to a single video.' }, { status: 400 });
+    }
+
     if (!metadata.formats) {
         return NextResponse.json({ error: 'No video formats available for this URL' }, { status: 404 });
     }
