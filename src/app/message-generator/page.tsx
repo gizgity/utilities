@@ -5,6 +5,7 @@ import { FileUpload } from '../../components/FileUpload';
 import { HeaderSelector } from '../../components/HeaderSelector';
 import { EditableTable } from '../../components/EditableTable';
 import { TemplateEditor } from '../../components/TemplateEditor';
+import { Loader } from '@/components/ui/Loader';
 import { Textarea, Button, Alert } from '@/components/ui';
 
 interface Phase1State {
@@ -190,7 +191,9 @@ export default function Home() {
           <div>
             <h2 className="text-2xl mb-4">[ Phase 1: Upload & Select Headers ]</h2>
             {isLoading ? (
-              <p>Scanning headers...</p>
+              <div className="flex items-center justify-center">
+                <Loader />
+              </div>
             ) : !phase1State.uploadedFile ? (
               <FileUpload onFileUpload={handleFileUpload} />
             ) : (
@@ -215,7 +218,9 @@ export default function Home() {
           <div>
             <h2 className="text-2xl mb-4">[ Phase 2: Extracted Data ]</h2>
             {isLoading ? (
-              <p>Extracting data...</p>
+              <div className="flex items-center justify-center">
+                <Loader />
+              </div>
             ) : (
               <div>
                 <EditableTable

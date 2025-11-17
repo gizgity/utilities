@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Loader } from '@/components/ui/Loader';
 import { Textarea, Button, Alert, Select, Input } from '@/components/ui';
 
 export default function TTSPage() {
@@ -100,7 +101,7 @@ export default function TTSPage() {
           disabled={isLoading || !text.trim()}
           className="w-full"
         >
-          {isLoading ? 'Generating...' : 'Generate'}
+          {isLoading ? <Loader /> : 'Generate'}
         </Button>
 
         {error && (
