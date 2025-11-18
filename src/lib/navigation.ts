@@ -40,6 +40,12 @@ export function generateNavConfig(): NavConfig {
         href: "/tts",
       };
     }
+    if (page === "ytdt") {
+      return {
+        title: "utube dlr",
+        href: "/ytdt",
+      };
+    }
     return {
       title: page.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
       href: `/${page}`,
