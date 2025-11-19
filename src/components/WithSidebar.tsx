@@ -23,7 +23,7 @@ export default function WithSidebar({
           <div className="w-64 hidden sm:block">
             <Sidebar navConfig={navConfig} />
           </div>
-          <div className="sm:hidden fixed top-2.5 left-2.5 z-50">
+          <div className="sm:hidden sticky top-2.5 left-2.5 z-50">
             <MobileMenu navConfig={navConfig} />
           </div>
         </>
