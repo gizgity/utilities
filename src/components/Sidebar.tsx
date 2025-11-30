@@ -14,33 +14,32 @@ export default function Sidebar({ setIsOpen, navConfig }: SideNavProps) {
   const pathname = usePathname();
 
   return (
-    <div className="sidebar-scroll sticky top-0 ps-3 border-r-2 max-h-screen h-full overflow-y-auto transition-transform transform md:translate-x-0 w-full bg-background flex flex-col justify-start md:justify-start py-8">
+    <div className="sidebar-scroll sticky top-0 ps-3 border-r-3 border-black max-h-screen h-full overflow-y-auto transition-transform transform md:translate-x-0 w-full bg-background flex flex-col justify-start py-8">
       <nav
-        className="flex flex-col items-start max-lg:px-6 space-y-4"
+        className="flex flex-col items-start px-6 space-y-4"
         aria-label="Main navigation"
       >
         {navConfig.sideNavItems.map((item) => (
           <div key={item.title} className="w-full">
-            <Text as="h5">{item.title}</Text>
-            <div className="flex flex-col w-full">
+            <Text as="h5" className="mb-2 px-2">{item.title}</Text>
+            <div className="flex flex-col w-full space-y-4">
               {item.children.map((child) => (
                 <Link
                   key={child.title}
                   href={child.href}
                   onClick={() => setIsOpen && setIsOpen(false)}
                   target={child.href.startsWith("http") ? "_blank" : "_self"}
-                  className={`px-2 py-1 w-full border border-transparent text-muted-foreground flex items-center justify-between hover:text-foreground hover:bg-muted/50 transition-colors ${
-                    pathname === child.href &&
-                    "bg-primary text-primary-foreground"
-                  }`}
+                  className={`px-3 py-2 w-full border-2 text-muted-foreground flex items-center justify-between hover:text-foreground hover:bg-muted hover:border-black hover:shadow-sm transition-all ${pathname === child.href &&
+                    "bg-primary text-primary-foreground border-black shadow-md font-bold"
+                    }`}
                 >
-                  <Text className="pe-2">
+                  <Text className="pe-2 uppercase text-base">
                     {child.title}
                   </Text>
                   {child.tag && (
                     <Badge
                       size="sm"
-                      className="py-0.5 px-1.5 border text-xs border-secondary text-muted-foreground bg-secondary/10"
+                      className="py-0.5 px-1.5 border-2 text-sm border-black bg-accent text-accent-foreground"
                     >
                       {child.tag}
                     </Badge>

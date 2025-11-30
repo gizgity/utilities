@@ -9,13 +9,14 @@
   --font-sans: var(--font-sans);
   --radius: var(--radius);
 
-  --shadow-xs: 1px 1px 0 0 var(--border);
-  --shadow-sm: 2px 2px 0 0 var(--border);
-  --shadow: 3px 3px 0 0 var(--border);
-  --shadow-md: 4px 4px 0 0 var(--border);
-  --shadow-lg: 6px 6px 0 0 var(--border);
-  --shadow-xl: 10px 10px 0 1px var(--border);
-  --shadow-2xl: 16px 16px 0 1px var(--border);
+  /* Enhanced neo-brutalist shadows with more aggressive offsets */
+  --shadow-xs: 2px 2px 0 0 var(--border);
+  --shadow-sm: 3px 3px 0 0 var(--border);
+  --shadow: 5px 5px 0 0 var(--border);
+  --shadow-md: 6px 6px 0 0 var(--border);
+  --shadow-lg: 8px 8px 0 0 var(--border);
+  --shadow-xl: 12px 12px 0 2px var(--border);
+  --shadow-2xl: 20px 20px 0 2px var(--border);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -33,53 +34,166 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-cyan: var(--cyan);
+  --color-cyan-foreground: var(--cyan-foreground);
+  --color-magenta: var(--magenta);
+  --color-magenta-foreground: var(--magenta-foreground);
+  --color-lime: var(--lime);
+  --color-lime-foreground: var(--lime-foreground);
 }
 
 :root {
   --radius: 0;
-  --background: #fff;
+  --background: #fafafa;
   --foreground: #000;
   --card: #fff;
   --card-foreground: #000;
   --primary: #ffdb33;
-  --primary-hover: #ffcc00;
+  --primary-hover: #ffc700;
   --primary-foreground: #000;
   --secondary: #000;
   --secondary-foreground: #fff;
-  --muted: #aeaeae;
-  --muted-foreground: #5a5a5a;
+  --muted: #d4d4d4;
+  --muted-foreground: #525252;
   --accent: #fae583;
   --accent-foreground: #000;
-  --destructive: #e63946;
+  --destructive: #ff3366;
   --destructive-foreground: #fff;
   --border: #000;
+  /* Retro pixel art colors */
+  --cyan: #00ffff;
+  --cyan-foreground: #000;
+  --magenta: #ff00ff;
+  --magenta-foreground: #fff;
+  --lime: #00ff00;
+  --lime-foreground: #000;
 }
 
 .dark {
   --radius: 0;
-  --background: #1a1a1a;
+  --background: #0a0a0a;
   --foreground: #f5f5f5;
-  --card: #242424;
+  --card: #1a1a1a;
   --card-foreground: #f5f5f5;
   --primary: #ffdb33;
-  --primary-hover: #ffcc00;
+  --primary-hover: #ffc700;
   --primary-foreground: #000;
-  --secondary: #3a3a3a;
+  --secondary: #2a2a2a;
   --secondary-foreground: #f5f5f5;
   --muted: #3f3f46;
   --muted-foreground: #a0a0a0;
   --accent: #fae583;
   --accent-foreground: #000;
-  --destructive: #e63946;
+  --destructive: #ff3366;
   --destructive-foreground: #fff;
-  --border: #3a3a3a;
+  --border: #f5f5f5;
+  /* Retro pixel art colors */
+  --cyan: #00ffff;
+  --cyan-foreground: #000;
+  --magenta: #ff00ff;
+  --magenta-foreground: #fff;
+  --lime: #00ff00;
+  --lime-foreground: #000;
 }
 
 @layer base {
   * {
     @apply border-border;
+    /* Pixel-perfect rendering */
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
   }
+
   body {
     @apply bg-background text-foreground;
+    /* Retro dotted background pattern */
+    background-image:
+      repeating-linear-gradient(0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.02) 2px,
+        rgba(0, 0, 0, 0.02) 4px),
+      repeating-linear-gradient(90deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.02) 2px,
+        rgba(0, 0, 0, 0.02) 4px);
+  }
+
+  /* Pixel art typography with consistent sizing */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-head;
+    line-height: 1.3;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    /* 24px */
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    /* 20px */
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    /* 18px */
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: 1rem;
+    /* 16px */
+  }
+
+  p,
+  label,
+  span {
+    font-size: 1.5rem;
+    /* 24px */
+    line-height: 1.5;
+  }
+
+  textarea,
+  input {
+    font-size: 1.25rem;
+    /* 20px */
+    line-height: 1.5;
+  }
+
+  /* Consistent button text */
+  button {
+    font-size: 1rem;
+    /* 16px */
+  }
+
+  /* Retro scrollbar */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--muted);
+    border: 2px solid var(--border);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border: 2px solid var(--border);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
   }
 }

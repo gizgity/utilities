@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Loader } from '@/components/ui/Loader';
 import { Button, Alert, Input } from '@/components/ui';
+import { PixelHeader } from '@/components/PixelDecor';
 
 export default function YtdlPage() {
   const [url, setUrl] = useState('');
@@ -39,9 +40,9 @@ export default function YtdlPage() {
   };
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">[ utube dlr ]</h1>
-      <div className="space-y-6 max-w-xl mx-auto">
+    <div className="container mx-auto p-8 max-w-4xl">
+      <PixelHeader className="mb-8 justify-center">YouTube Downloader</PixelHeader>
+      <div className="space-y-6 max-w-2xl mx-auto">
         <div className="space-y-2">
           <label htmlFor="url-input" className="font-bold">
             YouTube URL
@@ -60,7 +61,7 @@ export default function YtdlPage() {
           disabled={isLoading || !url.trim()}
           className="w-full"
         >
-          {isLoading ? <Loader /> : 'Get Video'}
+          {isLoading ? <Loader variant="bar" /> : 'Get Video'}
         </Button>
 
         {error && (

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Loader } from '@/components/ui/Loader';
 import { Textarea, Button, Alert, Select, Input } from '@/components/ui';
+import { PixelHeader } from '@/components/PixelDecor';
 
 export default function TTSPage() {
   const [text, setText] = useState('');
@@ -74,9 +75,9 @@ export default function TTSPage() {
   };
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">[ Text-to-Speech ]</h1>
-      <div className="space-y-6 max-w-xl mx-auto">
+    <div className="container mx-auto p-8 max-w-4xl">
+      <PixelHeader className="mb-8 justify-center">Text-to-Speech</PixelHeader>
+      <div className="space-y-6 max-w-2xl mx-auto">
         <div className="space-y-2">
           <label htmlFor="style-prompt-input" className="font-bold">
             Style Instructions
@@ -132,7 +133,7 @@ export default function TTSPage() {
           disabled={isLoading || !text.trim()}
           className="w-full"
         >
-          {isLoading ? <Loader /> : 'Generate'}
+          {isLoading ? <Loader variant="blocks" /> : 'Generate'}
         </Button>
 
         {error && (
