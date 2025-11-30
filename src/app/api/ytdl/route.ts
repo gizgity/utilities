@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { YtDlp } from 'ytdlp-nodejs';
-
-const ytdlp = new YtDlp();
+import ytdl from '@distube/ytdl-core';
 
 // Define the preferred format search order
 const preferredFormats = [
@@ -22,45 +20,84 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid URL provided' }, { status: 400 });
     }
 
-    const metadata = await ytdlp.getInfoAsync(url);
-
-    if (metadata._type === 'playlist') {
-      return NextResponse.json({ error: 'Playlists are not supported. Please provide a URL to a single video.' }, { status: 400 });
+    // Validate if the URL is a valid YouTube URL
+    if (!ytdl.validateURL(url)) {
+      return NextResponse.json({ error: 'Invalid YouTube URL provided' }, { status: 400 });
     }
 
-    if (!metadata.formats) {
-        return NextResponse.json({ error: 'No video formats available for this URL' }, { status: 404 });
+    // Get video info
+    const info = await ytdl.getInfo(url);
+
+    // Check if it's a playlist (ytdl-core doesn't support playlists)
+    if (info.videoDetails.isLiveContent) {
+      return NextResponse.json({ error: 'Live streams are not supported.' }, { status: 400 });
     }
+
+    const formats = info.formats;
+
+    if (!formats || formats.length === 0) {
+      return NextResponse.json({ error: 'No video formats available for this URL' }, { status: 404 });
+    }
+
+    // Filter formats that have both video and audio
+    const videoFormats = formats.filter(format =>
+      format.hasVideo && format.hasAudio && format.container
+    );
 
     for (const preferredFormat of preferredFormats) {
       const { quality, type } = preferredFormat;
+      const qualityHeight = parseInt(quality.replace('p', ''));
 
-      const matchingFormats = metadata.formats.filter(format => {
+      const matchingFormats = videoFormats.filter(format => {
         const height = format.height;
-        const ext = format.ext;
-        return height && height.toString() === quality.replace('p', '') && ext === type;
+        const container = format.container;
+        return height === qualityHeight && container === type;
       });
 
       if (matchingFormats.length > 0) {
-        const urls = matchingFormats.map(format => format.url).filter(Boolean); // Filter out any null/undefined URLs
+        const urls = matchingFormats.map(format => format.url).filter(Boolean);
         if (urls.length > 0) {
-            return NextResponse.json({
-              quality,
-              type,
-              data: urls,
-            });
+          return NextResponse.json({
+            quality,
+            type,
+            data: urls,
+            title: info.videoDetails.title,
+            duration: info.videoDetails.lengthSeconds,
+          });
         }
       }
+    }
+
+    // If no exact match, return the best available format
+    const bestFormat = videoFormats.sort((a, b) => (b.height || 0) - (a.height || 0))[0];
+
+    if (bestFormat) {
+      return NextResponse.json({
+        quality: `${bestFormat.height}p`,
+        type: bestFormat.container,
+        data: [bestFormat.url],
+        title: info.videoDetails.title,
+        duration: info.videoDetails.lengthSeconds,
+      });
     }
 
     return NextResponse.json({ error: 'No suitable video format found' }, { status: 404 });
 
   } catch (error: any) {
     console.error('Error processing request:', error);
-    // Check for common yt-dlp errors
-    if (error.message && error.message.includes('Unsupported URL')) {
-        return NextResponse.json({ error: 'The provided URL is not supported.' }, { status: 400 });
+
+    // Check for common ytdl-core errors
+    if (error.message && error.message.includes('Video unavailable')) {
+      return NextResponse.json({ error: 'Video is unavailable or private.' }, { status: 404 });
     }
-    return NextResponse.json({ error: 'An unexpected error occurred while processing the URL' }, { status: 500 });
+
+    if (error.message && error.message.includes('429')) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
+    return NextResponse.json({
+      error: 'An unexpected error occurred while processing the URL',
+      details: error.message
+    }, { status: 500 });
   }
 }
