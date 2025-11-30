@@ -2,12 +2,30 @@ import { NextResponse } from 'next/server';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from '@google/genai';
 import { getHeadersFromXLSX, getDataFromXLSX } from '@/lib/xlsx-processor';
 
+// Configuration
+const MAX_COLUMNS = parseInt(process.env.MAX_TABLE_COLUMNS || '10', 10);
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+// Type definitions
+interface ColumnProperty {
+  type: string;
+  description: string;
+}
+
+interface ExtractedRow {
+  [key: string]: string;
+}
+
+interface TableResponse {
+  headers: string[];
+  data: ExtractedRow[];
+}
+
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-const properties = {};
-const propertyOrdering = [];
-const required = [];
-const MAX_COLUMNS = 10;
+const properties: Record<string, ColumnProperty> = {};
+const propertyOrdering: string[] = [];
+const required: string[] = [];
 
 for (let i = 1; i <= MAX_COLUMNS; i++) {
   const colName = `Column_${i}`;
@@ -26,7 +44,7 @@ const tableSchema = {
     headers: {
       type: 'ARRAY',
       items: {
-        type: 'string',
+        type: 'STRING',  // Consistent with other type definitions
       },
       description: 'A list of all column headers found in the table image, always is the first row, ignore all other rows and must be order sequentially from the table columns.',
     },
@@ -78,12 +96,29 @@ async function processImage(file: File) {
       temperature: 0.1
     }
   });
-  console.log(result.text);
 
-  const responseObject = JSON.parse(result.text);
-  responseObject.headers = [... new Set(responseObject.headers)].filter(Boolean);
-  responseObject.data = responseObject.data.map((row: any) => {
-    const cleanedRow: any = {};
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Gemini response:', result.text);
+  }
+
+  const responseObject: TableResponse = JSON.parse(result.text);
+
+  // Handle duplicate headers by appending index
+  const seenHeaders = new Set<string>();
+  responseObject.headers = responseObject.headers
+    .filter(Boolean)
+    .map((header: string, index: number) => {
+      if (seenHeaders.has(header)) {
+        const newHeader = `${header}_${index}`;
+        seenHeaders.add(newHeader);
+        return newHeader;
+      }
+      seenHeaders.add(header);
+      return header;
+    });
+
+  responseObject.data = responseObject.data.map((row: ExtractedRow) => {
+    const cleanedRow: ExtractedRow = {};
     for (let i = 1; i <= MAX_COLUMNS; i++) {
       const key = `Column_${i}`;
       const cleanedKey = responseObject.headers[i - 1] || key;
@@ -113,7 +148,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file uploaded.' }, { status: 400 });
     }
 
-    let result;
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB.` },
+        { status: 413 }
+      );
+    }
+
+    let result: TableResponse;
     if (file.type.startsWith('image/')) {
       result = await processImage(file);
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
@@ -124,8 +167,16 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result);
 
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'An unexpected error occurred.' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+    return NextResponse.json(
+      {
+        error: 'An unexpected error occurred.',
+        ...(process.env.NODE_ENV === 'development' && { details: errorMessage })
+      },
+      { status: 500 }
+    );
   }
 }
