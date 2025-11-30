@@ -18,8 +18,8 @@ const vt323 = VT323({
   display: "swap",
 });
 export const metadata: Metadata = {
-  title: "Retro Data Extractor",
-  description: "Extract data from images and fill templates",
+  title: "Teacher Assistant",
+  description: "Automated teacher paper work assistant",
 };
 
 export default function RootLayout({
