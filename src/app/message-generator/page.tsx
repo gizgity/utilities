@@ -7,6 +7,7 @@ import { EditableTable } from '../../components/EditableTable';
 import { TemplateEditor } from '../../components/TemplateEditor';
 import { Loader } from '@/components/ui/Loader';
 import { Textarea, Button, Alert } from '@/components/ui';
+import { PixelHeader } from '@/components/PixelDecor';
 
 interface Phase1State {
   uploadedFile: File | null;
@@ -170,100 +171,100 @@ export default function Home() {
   if (!isMounted) return null;
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto p-8 max-w-7xl">
       {error && (
         <Alert variant="solid" status="error">
           <Alert.Title>Error</Alert.Title>
           <Alert.Description>{error}</Alert.Description>
         </Alert>
       )}
-        <h1 className="text-3xl font-bold mb-8 text-center">[ DATA EXTRACTOR ]</h1>
-        <div className="flex justify-between items-center mb-4">
-          <Button onClick={handlePreviousPhase} disabled={phase === 1}>
-            PREVIOUS
-          </Button>
-          <Button onClick={handleNextPhase} disabled={!canGoNext() || phase === 3}>
-            NEXT
-          </Button>
-        </div>
-
-        {phase === 1 && (
-          <div>
-            <h2 className="text-2xl mb-4">[ Phase 1: Upload & Select Headers ]</h2>
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <Loader />
-              </div>
-            ) : !phase1State.uploadedFile ? (
-              <FileUpload onFileUpload={handleFileUpload} />
-            ) : (
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <p>File Uploaded: {phase1State.uploadedFile.name}</p>
-                  <Button onClick={() => setPhase1State({ ...phase1State, uploadedFile: null, headers: [], selectedHeaders: [] })}>
-                    UPLOAD NEW FILE
-                  </Button>
-                </div>
-                <HeaderSelector
-                  headers={phase1State.headers}
-                  selectedHeaders={phase1State.selectedHeaders}
-                  onHeaderToggle={handleHeaderToggle}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {phase === 2 && (
-          <div>
-            <h2 className="text-2xl mb-4">[ Phase 2: Extracted Data ]</h2>
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <Loader />
-              </div>
-            ) : (
-              <div>
-                <EditableTable
-                  headers={phase1State.selectedHeaders}
-                  allHeaders={phase1State.headers}
-                  data={phase2State.extractedData}
-                  onDataChange={(newData) => setPhase2State({ extractedData: newData, hasChanged: true })}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {phase === 3 && (
-          <div>
-            <h2 className="text-2xl mb-4">[ Phase 3: Generate Output ]</h2>
-            <TemplateEditor
-              availableKeys={phase1State.selectedHeaders}
-              template={phase3State.template}
-              onTemplateChange={(newTemplate) => setPhase3State(prev => ({ ...prev, template: newTemplate, hasChanged: true }))}
-              onGenerate={handleGenerateOutput}
-            />
-
-            {phase3State.generatedOutput && (
-              <div className="mt-8">
-                <h3 className="text-xl mb-2">[ Generated Output ]</h3>
-                <Textarea
-                  readOnly
-                  value={phase3State.generatedOutput}
-                  className="w-full h-64 bg-background border border-input p-2"
-                />
-                <div className="flex gap-4 mt-4">
-                  <Button onClick={downloadTxt} className="w-full">
-                    DOWNLOAD .TXT
-                  </Button>
-                  <Button onClick={downloadCsv} className="w-full">
-                    DOWNLOAD .CSV
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+      <PixelHeader className="mb-8 justify-center">MESSAGE GENERATOR</PixelHeader>
+      <div className="flex justify-between items-center mb-4">
+        <Button onClick={handlePreviousPhase} disabled={phase === 1}>
+          PREVIOUS
+        </Button>
+        <Button onClick={handleNextPhase} disabled={!canGoNext() || phase === 3}>
+          NEXT
+        </Button>
       </div>
+
+      {phase === 1 && (
+        <div>
+          <h2 className="text-xl mb-4">[ Phase 1: Upload & Select Headers ]</h2>
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <Loader variant="pulse" />
+            </div>
+          ) : !phase1State.uploadedFile ? (
+            <FileUpload onFileUpload={handleFileUpload} />
+          ) : (
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <p>File Uploaded: {phase1State.uploadedFile.name}</p>
+                <Button onClick={() => setPhase1State({ ...phase1State, uploadedFile: null, headers: [], selectedHeaders: [] })}>
+                  UPLOAD NEW FILE
+                </Button>
+              </div>
+              <HeaderSelector
+                headers={phase1State.headers}
+                selectedHeaders={phase1State.selectedHeaders}
+                onHeaderToggle={handleHeaderToggle}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {phase === 2 && (
+        <div>
+          <h2 className="text-xl mb-4">[ Phase 2: Extracted Data ]</h2>
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <Loader variant="pulse" />
+            </div>
+          ) : (
+            <div>
+              <EditableTable
+                headers={phase1State.selectedHeaders}
+                allHeaders={phase1State.headers}
+                data={phase2State.extractedData}
+                onDataChange={(newData) => setPhase2State({ extractedData: newData, hasChanged: true })}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {phase === 3 && (
+        <div>
+          <h2 className="text-xl mb-4">[ Phase 3: Generate Output ]</h2>
+          <TemplateEditor
+            availableKeys={phase1State.selectedHeaders}
+            template={phase3State.template}
+            onTemplateChange={(newTemplate) => setPhase3State(prev => ({ ...prev, template: newTemplate, hasChanged: true }))}
+            onGenerate={handleGenerateOutput}
+          />
+
+          {phase3State.generatedOutput && (
+            <div className="mt-8">
+              <h3 className="text-lg mb-2">[ Generated Output ]</h3>
+              <Textarea
+                readOnly
+                value={phase3State.generatedOutput}
+                className="w-full h-64 bg-background border border-input p-2"
+              />
+              <div className="flex gap-4 mt-4">
+                <Button onClick={downloadTxt} className="w-full">
+                  DOWNLOAD .TXT
+                </Button>
+                <Button onClick={downloadCsv} className="w-full">
+                  DOWNLOAD .CSV
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

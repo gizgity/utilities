@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import "./globals.css";
 import WithSidebar from "../components/WithSidebar";
 import { generateNavConfig } from "../lib/navigation";
-import { Archivo_Black, Space_Grotesk } from "next/font/google";
+import { Press_Start_2P, VT323 } from "next/font/google";
 
-const archivoBlack = Archivo_Black({
+const pressStart = Press_Start_2P({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-head",
   display: "swap",
 });
 
-const space = Space_Grotesk({
+const vt323 = VT323({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-sans",
@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${archivoBlack.variable} ${space.variable} font-mono antialiased`}
+        className={`${pressStart.variable} ${vt323.variable} font-sans antialiased`}
       >
         <WithSidebar navConfig={navConfig}>{children}</WithSidebar>
       </body>

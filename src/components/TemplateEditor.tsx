@@ -40,7 +40,7 @@ export function TemplateEditor({
       <div className="flex gap-8">
         <div className="w-2/3">
           <h3 className="text-xl mb-2">[ Template Editor ]</h3>
-          <p className="text-sm mb-4">Drag and drop keys from the list on the right into the text area.</p>
+          <p className="text-base mb-4">Drag and drop keys from the list on the right into the text area.</p>
           <Textarea
             value={template}
             onChange={(e) => onTemplateChange(e.target.value)}

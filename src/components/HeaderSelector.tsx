@@ -23,7 +23,7 @@ export function HeaderSelector({ headers, selectedHeaders, onHeaderToggle }: Hea
             />
             <label
               htmlFor={header}
-              className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="ml-2 text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               {header}
             </label>
