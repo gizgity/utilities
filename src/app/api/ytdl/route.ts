@@ -11,6 +11,23 @@ const preferredFormats = [
   { quality: '360p', type: 'webm' },
 ];
 
+// Helper function to create video response
+function createVideoResponse(
+  quality: string,
+  type: string,
+  urls: string[],
+  title: string,
+  duration: string
+) {
+  return NextResponse.json({
+    quality,
+    type,
+    data: urls,
+    title,
+    duration,
+  });
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -46,24 +63,31 @@ export async function POST(request: Request) {
 
     for (const preferredFormat of preferredFormats) {
       const { quality, type } = preferredFormat;
-      const qualityHeight = parseInt(quality.replace('p', ''));
+      const qualityHeight = parseInt(quality.replace('p', ''), 10);
+
+      // Skip if quality parsing failed
+      if (isNaN(qualityHeight)) continue;
 
       const matchingFormats = videoFormats.filter(format => {
         const height = format.height;
         const container = format.container;
-        return height === qualityHeight && container === type;
+        // Explicit null/undefined check for height
+        return height !== undefined && height === qualityHeight && container === type;
       });
 
       if (matchingFormats.length > 0) {
-        const urls = matchingFormats.map(format => format.url).filter(Boolean);
+        const urls = matchingFormats
+          .map(format => format.url)
+          .filter((url): url is string => typeof url === 'string' && url.length > 0);
+
         if (urls.length > 0) {
-          return NextResponse.json({
+          return createVideoResponse(
             quality,
             type,
-            data: urls,
-            title: info.videoDetails.title,
-            duration: info.videoDetails.lengthSeconds,
-          });
+            urls,
+            info.videoDetails.title,
+            info.videoDetails.lengthSeconds
+          );
         }
       }
     }
@@ -71,33 +95,35 @@ export async function POST(request: Request) {
     // If no exact match, return the best available format
     const bestFormat = videoFormats.sort((a, b) => (b.height || 0) - (a.height || 0))[0];
 
-    if (bestFormat) {
-      return NextResponse.json({
-        quality: `${bestFormat.height}p`,
-        type: bestFormat.container,
-        data: [bestFormat.url],
-        title: info.videoDetails.title,
-        duration: info.videoDetails.lengthSeconds,
-      });
+    if (bestFormat && bestFormat.url) {
+      return createVideoResponse(
+        `${bestFormat.height}p`,
+        bestFormat.container,
+        [bestFormat.url],
+        info.videoDetails.title,
+        info.videoDetails.lengthSeconds
+      );
     }
 
     return NextResponse.json({ error: 'No suitable video format found' }, { status: 404 });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error processing request:', error);
 
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
     // Check for common ytdl-core errors
-    if (error.message && error.message.includes('Video unavailable')) {
+    if (errorMessage.includes('Video unavailable')) {
       return NextResponse.json({ error: 'Video is unavailable or private.' }, { status: 404 });
     }
 
-    if (error.message && error.message.includes('429')) {
+    if (errorMessage.includes('429')) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
 
     return NextResponse.json({
       error: 'An unexpected error occurred while processing the URL',
-      details: error.message
+      ...(process.env.NODE_ENV === 'development' && { details: errorMessage })
     }, { status: 500 });
   }
 }
