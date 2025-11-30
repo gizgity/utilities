@@ -11,7 +11,38 @@ export default function TTSPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const voicesList = ['Kore', 'Puck', 'Zephyr', 'Fenrir', 'Achird'];
+  const voicesList = [
+    'Achernar',
+    'Achird',
+    'Algenib',
+    'Algieba',
+    'Alnilam',
+    'Aoede',
+    'Autonoe',
+    'Callirrhoe',
+    'Charon',
+    'Despina',
+    'Enceladus',
+    'Erinome',
+    'Fenrir',
+    'Gacrux',
+    'Iapetus',
+    'Kore',
+    'Laomedeia',
+    'Leda',
+    'Orus',
+    'Puck',
+    'Pulcherrima',
+    'Rasalgethi',
+    'Sadachbia',
+    'Sadaltager',
+    'Schedar',
+    'Sulafat',
+    'Umbriel',
+    'Vindemiatrix',
+    'Zephyr',
+    'Zubenelgenubi',
+  ];
 
   const handleGenerate = async () => {
     setIsLoading(true);
