@@ -4,6 +4,7 @@ import type { NavConfig } from "../lib/navigation";
 import { Badge, Text } from "./ui";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home } from "lucide-react";
 
 interface SideNavProps {
   setIsOpen?: (isOpen: boolean) => void;
@@ -19,6 +20,23 @@ export default function Sidebar({ setIsOpen, navConfig }: SideNavProps) {
         className="flex flex-col items-start px-6 space-y-4"
         aria-label="Main navigation"
       >
+        {/* Home Button */}
+        <Link
+          href="/"
+          onClick={() => setIsOpen && setIsOpen(false)}
+          className={`px-3 py-2 w-full border-2 text-muted-foreground flex items-center gap-2 hover:text-foreground hover:bg-muted hover:border-black hover:shadow-sm transition-all ${pathname === "/" &&
+            "bg-primary text-primary-foreground border-black shadow-md font-bold"
+            }`}
+        >
+          <Home className="w-4 h-4" />
+          <Text className="uppercase text-base">
+            Home
+          </Text>
+        </Link>
+
+        {/* Divider */}
+        <div className="w-full h-0.5 bg-border"></div>
+
         {navConfig.sideNavItems.map((item) => (
           <div key={item.title} className="w-full">
             <Text as="h5" className="mb-2 px-2">{item.title}</Text>

@@ -42,7 +42,7 @@ export function generateNavConfig(): NavConfig {
     }
     if (page === "ytdt") {
       return {
-        title: "utube dlr",
+        title: "YouTube Downloader",
         href: "/ytdt",
       };
     }
