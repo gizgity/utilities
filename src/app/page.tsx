@@ -12,14 +12,14 @@ const utilities = [
     color: 'bg-cyan',
     borderColor: 'border-cyan',
   },
-  // {
-  //   title: 'Test Paper Formatter',
-  //   description: 'Format test papers with consistent styling',
-  //   href: '/test-paper-formatter',
-  //   icon: FileText,
-  //   color: 'bg-magenta',
-  //   borderColor: 'border-magenta',
-  // },
+  {
+    title: 'Test Paper Formatter',
+    description: 'Format test papers with consistent styling',
+    href: '/test-paper-formatter',
+    icon: FileText,
+    color: 'bg-magenta',
+    borderColor: 'border-magenta',
+  },
   {
     title: 'Text-to-Speech',
     description: 'Convert text to natural-sounding speech',
