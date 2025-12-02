@@ -94,6 +94,16 @@ export default function YtdlPage() {
             </ul>
           </div>
         )}
+
+        <div className="mt-8 p-6 border-4 border-foreground bg-muted">
+          <h3 className="text-lg mb-2">[ HOW IT WORKS ]</h3>
+          <ol className="list-decimal list-inside space-y-2 text-sm opacity-70">
+            <li>Paste a YouTube video URL into the input field</li>
+            <li>Click "Get Video" to retrieve download links</li>
+            <li>View the video quality and format information</li>
+            <li>Click on any link to download the video</li>
+          </ol>
+        </div>
       </div>
     </div>
   );

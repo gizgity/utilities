@@ -265,6 +265,17 @@ export default function Home() {
           )}
         </div>
       )}
+
+      <div className="mt-8 p-6 border-4 border-foreground bg-muted">
+        <h3 className="text-lg mb-2">[ HOW IT WORKS ]</h3>
+        <ol className="list-decimal list-inside space-y-2 text-sm opacity-70">
+          <li>Upload a CSV or Excel file containing your data</li>
+          <li>Select which columns (headers) you want to use</li>
+          <li>Review and edit the extracted data in the table</li>
+          <li>Create a message template using placeholders like {`{columnName}`}</li>
+          <li>Generate personalized messages and download as TXT or CSV</li>
+        </ol>
+      </div>
     </div>
   );
 }

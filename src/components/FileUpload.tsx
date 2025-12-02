@@ -7,22 +7,31 @@ import { cn } from '@/lib/utils';
 interface FileUploadProps {
   onFileUpload: (file: File) => void;
   className?: string;
+  accept?: string;
 }
 
-export function FileUpload({ onFileUpload, className }: FileUploadProps) {
+export function FileUpload({ onFileUpload, className, accept }: FileUploadProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       onFileUpload(acceptedFiles[0]);
     }
   }, [onFileUpload]);
 
+  // Default accept types
+  const defaultAccept = {
+    'image/png': ['.png'],
+    'image/jpeg': ['.jpg', '.jpeg'],
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+  };
+
+  // Custom accept for .docx files
+  const docxAccept = {
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+  };
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'image/png': ['.png'],
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-    }
+    accept: accept === '.docx' ? docxAccept : defaultAccept,
   });
 
   return (

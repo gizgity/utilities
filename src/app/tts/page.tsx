@@ -149,6 +149,17 @@ export default function TTSPage() {
             <audio controls src={audioUrl} className="w-full" />
           </div>
         )}
+
+        <div className="mt-8 p-6 border-4 border-foreground bg-muted">
+          <h3 className="text-lg mb-2">[ HOW IT WORKS ]</h3>
+          <ol className="list-decimal list-inside space-y-2 text-sm opacity-70">
+            <li>Enter style instructions to customize the voice tone and delivery</li>
+            <li>Type or paste your text (up to 1000 characters)</li>
+            <li>Select a voice from the dropdown menu</li>
+            <li>Click "Generate" to create your audio file</li>
+            <li>Listen to the generated audio using the player</li>
+          </ol>
+        </div>
       </div>
     </div>
   );
