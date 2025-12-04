@@ -62,7 +62,9 @@ export default function DocFormatter() {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'A_formatted.docx';
+            // Use the original filename from fileA, replacing .docx with _formatted.docx
+            const originalName = fileA.name.replace(/\.docx$/i, '');
+            a.download = `${originalName}_formatted.docx`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
